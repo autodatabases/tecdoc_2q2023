@@ -1,0 +1,7 @@
+   SELECT 
+         MFA_BRAND
+   FROM 
+         MANUFACTURERS
+   WHERE 
+         MANUFACTURERS.MFA_PC = 1 
+   ORDER BY MFA_BRAND;

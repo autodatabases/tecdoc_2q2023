@@ -1,0 +1,29 @@
+ SET @SEARCH_NUMBER = '5302';
+ SET @COUNTRY_FILTER = '4';
+   SET @LNGID = 16;
+		SET SESSION group_concat_max_len = 10000000;
+		
+    SELECT distinct
+          ARTICLES.ART_ID, 
+          ARTICLES.ART_ARTICLE_NR,
+					#ART_LOOKUP.ARL_SEARCH_NUMBER,
+          ARTICLES.ART_SUP_BRAND,
+          CONCAT_WS(' ', get_text(ARTICLES.ART_COMPLETE_DES_ID, @LNGID), get_text(ARTICLES.ART_DES_ID, @LNGID) ) AS ART_PRODUCT_NAME,
+          #ART_LOOKUP.ARL_KIND AS FOUND_VIA
+					 CASE
+                WHEN ART_LOOKUP.ARL_KIND = 1 THEN 'артикул производителя'
+                WHEN ART_LOOKUP.ARL_KIND = 2 THEN 'торговый номер'
+                WHEN ART_LOOKUP.ARL_KIND = 3 THEN 'оригинальная замена'
+								WHEN ART_LOOKUP.ARL_KIND = 4 THEN 'неоригинальная замена'
+                END AS 'FOUND_IN'
+          
+    FROM 
+          ART_LOOKUP
+          INNER JOIN ARTICLES ON ARTICLES.ART_ID = ART_LOOKUP.ARL_ART_ID
+          INNER JOIN COUNTRY_RESTRICTIONS ON COUNTRY_RESTRICTIONS.CNTR_ID = ARTICLES.ART_CTM
+                 AND COUNTRY_RESTRICTIONS.CNTR_COU_ID = @COUNTRY_FILTER
+  
+    WHERE 
+          ART_LOOKUP.ARL_SEARCH_NUMBER = @SEARCH_NUMBER# and ART_LOOKUP.ARL_KIND=4
+            
+    ORDER BY ARTICLES.ART_SUP_BRAND;
